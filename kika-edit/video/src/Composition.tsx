@@ -45,10 +45,8 @@ const MESSI_X: [number, number][] = [
 ];
 
 const CREAM = "#F2EDE3";
-const SERIF = "Instrument Serif";
 const COND = "Barlow Condensed";
 
-loadFont({ family: SERIF, url: staticFile("fonts/InstrumentSerif_400Regular_Italic.ttf"), style: "italic" });
 loadFont({ family: COND, url: staticFile("fonts/BarlowCondensed_600SemiBold.ttf"), weight: "600" });
 loadFont({ family: COND, url: staticFile("fonts/BarlowCondensed_800ExtraBold.ttf"), weight: "800" });
 
@@ -218,15 +216,6 @@ const reveal = (f: number, start: number, end: number, len = 14) => ({
   filter: `blur(${interpolate(f, [start, start + len], [10, 0], clamp)}px)`,
 });
 
-const serif = (size: number): React.CSSProperties => ({
-  fontFamily: SERIF,
-  fontStyle: "italic",
-  fontSize: size,
-  lineHeight: 1.0,
-  color: CREAM,
-  textShadow: "0 4px 30px rgba(0,0,0,0.55)",
-  letterSpacing: -1,
-});
 const label = (size: number, weight = 600): React.CSSProperties => ({
   fontFamily: COND,
   fontWeight: weight,
@@ -239,27 +228,13 @@ const label = (size: number, weight = 600): React.CSSProperties => ({
 
 const Titles: React.FC = () => {
   const f = useCurrentFrame();
-  const hookLines = ["This commentary", "wasn't made", "for her."];
   return (
     <AbsoluteFill style={{ pointerEvents: "none" }}>
-      {/* hook */}
-      <div style={{ position: "absolute", top: 300, width: W, textAlign: "center" }}>
-        {hookLines.map((line, i) => (
-          <div key={line} style={{ ...serif(124), ...reveal(f, 10 + i * 14, 140) }}>
-            {line}
-          </div>
-        ))}
-      </div>
       {/* name tag during the dribble */}
       <div style={{ position: "absolute", left: 72, top: 1440, ...reveal(f, 160, 380) }}>
         <div style={{ width: interpolate(f, [160, 190], [0, 120], clamp), height: 4, backgroundColor: CREAM, marginBottom: 18 }} />
         <div style={label(58, 800)}>Kika Nazareth</div>
         <div style={{ ...label(32), opacity: 0.75, marginTop: 6 }}>FC 27 · No. 5</div>
-      </div>
-      {/* the turn */}
-      <div style={{ position: "absolute", top: H / 2 - 95, width: W, height: 190, display: "flex", alignItems: "center", justifyContent: "center", ...reveal(f, 482, 600) }}>
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.72) 18%, rgba(0,0,0,0.72) 82%, rgba(0,0,0,0) 100%)" }} />
-        <div style={{ ...serif(112), position: "relative" }}>It was made for him.</div>
       </div>
       {/* panel labels */}
       <div style={{ position: "absolute", left: 72, top: 236, ...reveal(f, 500, SPLIT_GOAL + 2) }}>
@@ -271,10 +246,8 @@ const Titles: React.FC = () => {
         <div style={{ ...label(28), opacity: 0.75, marginTop: 4 }}>FC 27 · 2026</div>
       </div>
       {/* end card */}
-      <div style={{ position: "absolute", top: 780, width: W, textAlign: "center" }}>
-        <div style={{ ...serif(168), ...reveal(f, SPLIT_GOAL + 14, END + 20, 16) }}>Same run.</div>
-        <div style={{ ...serif(120), marginTop: 18, ...reveal(f, SPLIT_GOAL + 30, END + 20, 16) }}>19 years apart.</div>
-        <div style={{ ...label(34), marginTop: 56, ...reveal(f, SPLIT_GOAL + 46, END + 20, 16) }}>
+      <div style={{ position: "absolute", top: H / 2 - 24, width: W, textAlign: "center" }}>
+        <div style={{ ...label(34), ...reveal(f, SPLIT_GOAL + 20, END + 20, 16) }}>
           <span style={{ opacity: 0.8 }}>Messi 2007 — Nazareth 2026</span>
         </div>
       </div>
@@ -286,9 +259,7 @@ const Titles: React.FC = () => {
 const Flashes: React.FC = () => {
   const f = useCurrentFrame();
   const a =
-    interpolate(f, [KIKA_GOAL, KIKA_GOAL + 2, KIKA_GOAL + 10], [0, 0.55, 0], clamp) +
-    interpolate(f, [462, 472, 482], [0, 1, 0], clamp) +
-    interpolate(f, [SPLIT_GOAL, SPLIT_GOAL + 2, SPLIT_GOAL + 12], [0, 0.7, 0], clamp);
+    interpolate(f, [462, 472, 482], [0, 1, 0], clamp); // transition into the split only
   return <AbsoluteFill style={{ backgroundColor: CREAM, opacity: Math.min(a, 1), pointerEvents: "none" }} />;
 };
 
