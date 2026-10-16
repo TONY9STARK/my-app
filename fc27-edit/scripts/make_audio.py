@@ -74,7 +74,7 @@ def pad(freqs, d):
 
 # ---------- song ----------
 BPM = 130; BEAT = 60 / BPM; BAR = 4 * BEAT; STEP = BEAT / 4
-BARS = 26
+BARS = 27
 song = np.zeros((2, int((BARS * BAR + 3) * SR)))
 def place(x, at, gain=1.0, pan=0.0):
     i = int(at * SR); x = x[: song.shape[1] - i]
@@ -88,14 +88,16 @@ riff2 = [69, None, 72, None, 74, 76, None, 79, None, 76, 74, None, 72, None, 71,
 bassline = [(45, 0, 1.5), (45, 1.75, 0.5), (48, 2.5, 0.75), (43, 3.25, 0.75)]
 chords = [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 56, 59]]  # Am F G E
 
-# sections (bar ranges): intro 0-4, dropA 4-12, break 12-14, dropB 14-24, outro 24-26
+# sections (bar ranges) synced to the edit: intro 0-2, dropA 2-15 (goals 1-2), dropB 15-19 (goal 3),
+# break 19-21 (free-kick run-up), dropB 21-25 (free-kick goal), outro 25-27
 for b in range(BARS):
     t0 = b * BAR
-    intro, drop_a, brk, drop_b, outro = b < 4, 4 <= b < 12, 12 <= b < 14, 14 <= b < 24, b >= 24
+    intro, drop_a, brk, outro = b < 2, 2 <= b < 15, 19 <= b < 21, b >= 25
+    drop_b = 15 <= b < 19 or 21 <= b < 25
     ch = [N(m) for m in chords[b % 4]]
     if intro or brk or outro:
         place(pad(ch, BAR), t0, 0.10)
-    if intro and b >= 2:                           # filtered riff teaser
+    if intro and b >= 1:                           # filtered riff teaser
         for s, m in enumerate(riff):
             if m: place(lowpass(cowbell(N(m)), 900), t0 + s * STEP, 0.35)
     if brk:                                        # heartbeat for the free-kick slow-mo
@@ -103,7 +105,7 @@ for b in range(BARS):
             place(lowpass(kick(0.3), 200), t0 + beat * BEAT, 0.5)
             place(lowpass(kick(0.3), 200), t0 + beat * BEAT + 0.16, 0.3)
     if drop_a or drop_b:
-        r = riff2 if (drop_b and b % 2) else riff
+        r = riff2 if ((drop_b or b >= 9) and b % 2) else riff
         for s, m in enumerate(r):
             if m: place(cowbell(N(m)), t0 + s * STEP, 0.42, pan=0.15 if s % 2 else -0.15)
         for k in (0, 1.5, 2.75) if drop_b else (0, 2.5):
@@ -118,7 +120,7 @@ for b in range(BARS):
                 place(hat(), t0 + s * STEP, 0.2 if s % 4 == 0 else 0.12)
         for m, st, ln in bassline:
             place(bass808(N(m), ln * BEAT), t0 + st * BEAT, 0.75)
-    if outro and b == 24:
+    if outro and b == 25:
         place(bass808(N(45), BAR * 1.5), t0, 0.8)
         place(kick(), t0, 1.0)
 
@@ -132,8 +134,8 @@ def impact(d=2.5):
     boom = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 1.6)
     crack = lowpass(rng.standard_normal(len(tt)), 5000) * np.exp(-tt * 9) * 0.6
     return reverb(sat(boom + crack, 2), 2.0, 0.35)
-for bar in (4, 14):
-    place(riser(2 * BAR), (bar - 2) * BAR, 0.35)
+for bar, n in ((2, 1), (21, 2)):
+    place(riser(n * BAR), (bar - n) * BAR, 0.35)
     place(impact(), bar * BAR, 0.6)
 
 mix = song.copy()
@@ -171,4 +173,4 @@ crowd = lowpass(highpass(rng.standard_normal(len(tt)), 300), 3000) * np.minimum(
 ssave("crowd_roar.wav", reverb(crowd, 1.5, 0.4))
 tt = t(1.2); rev = (highpass(rng.standard_normal(len(tt)), 5000) * np.exp(-tt * 3))[::-1]
 ssave("reverse_cymbal.wav", rev)
-print("bar length (s):", BAR, " drops at:", 4 * BAR, 14 * BAR, " break:", 12 * BAR, "-", 14 * BAR)
+print("bar length (s):", BAR, " drops at:", 2 * BAR, 21 * BAR, " break:", 19 * BAR, "-", 21 * BAR)
