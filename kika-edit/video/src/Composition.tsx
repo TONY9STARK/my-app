@@ -13,29 +13,29 @@ import {
 } from "remotion";
 import { KIKA_TRACK } from "./data/kikaTrack";
 
-const FPS = 30;
-const W = 1080;
-const H = 1920;
+export const FPS = 30;
+export const W = 1080;
+export const H = 1920;
 
 // ---- timeline (frames) -------------------------------------------------------
-const KIKA_GOAL = 396; // ball crosses the line, lands on the commentator's scream
-const SPLIT_IN = 470; // split screen arrives behind the flash
-const SPLIT_GOAL = 720; // both goals hit together
-const END = 810;
+export const KIKA_GOAL = 396; // ball crosses the line, lands on the commentator's scream
+export const SPLIT_IN = 470; // split screen arrives behind the flash
+export const SPLIT_GOAL = 720; // both goals hit together
+export const END = 810;
 
 // Kika clip in public/ starts 1.0s into the original replay.
-const KIKA_FILE_OFFSET = 1.0;
-const KIKA_SRC_SIZE = { w: 1920, h: 1080 };
-const MESSI_SRC_SIZE = { w: 1024, h: 576 };
+export const KIKA_FILE_OFFSET = 1.0;
+export const KIKA_SRC_SIZE = { w: 1920, h: 1080 };
+export const MESSI_SRC_SIZE = { w: 1024, h: 576 };
 
 // Full-screen dribble: source 1.6s -> 8.2s at half speed.
-const A_SRC0 = 1.6;
-const A_RATE = 0.5;
+export const A_SRC0 = 1.6;
+export const A_RATE = 0.5;
 // Split: Kika 2.0s -> 8.2s and Messi's close-up replay 15.6s -> 29.5s, both into 8s.
-const S_KIKA_SRC0 = 2.0;
-const S_KIKA_RATE = (8.2 - 2.0) / ((SPLIT_GOAL - SPLIT_IN) / FPS);
-const S_MESSI_SRC0 = 15.6;
-const S_MESSI_RATE = (29.5 - 15.6) / ((SPLIT_GOAL - SPLIT_IN) / FPS);
+export const S_KIKA_SRC0 = 2.0;
+export const S_KIKA_RATE = (8.2 - 2.0) / ((SPLIT_GOAL - SPLIT_IN) / FPS);
+export const S_MESSI_SRC0 = 15.6;
+export const S_MESSI_RATE = (29.5 - 15.6) / ((SPLIT_GOAL - SPLIT_IN) / FPS);
 
 // Messi's horizontal position (source px) through the replay, read off a gridded contact sheet.
 const MESSI_X: [number, number][] = [
@@ -45,19 +45,19 @@ const MESSI_X: [number, number][] = [
 ];
 
 const CREAM = "#F2EDE3";
-const COND = "Barlow Condensed";
+export const COND = "Barlow Condensed";
 
 loadFont({ family: COND, url: staticFile("fonts/BarlowCondensed_600SemiBold.ttf"), weight: "600" });
 loadFont({ family: COND, url: staticFile("fonts/BarlowCondensed_800ExtraBold.ttf"), weight: "800" });
 
-const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+export const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const smooth = (x: number) => x * x * (3 - 2 * x);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-type Cam = { cx: number; cy: number; cw: number };
+export type Cam = { cx: number; cy: number; cw: number };
 
 // Kika camera: follow the tracked marker, then widen towards the goal as she shoots.
-const kikaCam = (srcT: number, baseW: number, wideW: number, aspect: number): Cam => {
+export const kikaCam = (srcT: number, baseW: number, wideW: number, aspect: number): Cam => {
   const tx = interpolate(srcT, KIKA_TRACK.t, KIKA_TRACK.x, clamp);
   const ty = interpolate(srcT, KIKA_TRACK.t, KIKA_TRACK.y, clamp);
   const w = smooth(interpolate(srcT, [7.25, 7.85], [0, 1], clamp));
@@ -74,7 +74,7 @@ const kikaCam = (srcT: number, baseW: number, wideW: number, aspect: number): Ca
   };
 };
 
-const messiCam = (t: number): Cam => {
+export const messiCam = (t: number): Cam => {
   const cw = 648; // full height, panel aspect 1.125
   const x = interpolate(t, MESSI_X.map((k) => k[0]), MESSI_X.map((k) => k[1]), {
     ...clamp,
@@ -84,7 +84,7 @@ const messiCam = (t: number): Cam => {
 };
 
 // Positions a source frame so that the camera window (cw wide, centred on cx/cy) fills the panel.
-const panelStyle = (cam: Cam, src: { w: number; h: number }, outW: number, outH: number): React.CSSProperties => {
+export const panelStyle = (cam: Cam, src: { w: number; h: number }, outW: number, outH: number): React.CSSProperties => {
   const k = outW / cam.cw;
   const ch = outH / k;
   return {
